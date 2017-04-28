@@ -83,7 +83,7 @@ int main(int argc, char **argv)
         return -2;
     }
 
-    QDir _dir("C:/Testdata/Face/Test/diacare_singleshot");
+    QDir _dir("C:/Testdata/Face/Face");
     if(!_dir.exists()) {
         qWarning("Can not find directory with files! Abort...");
         return -1;
