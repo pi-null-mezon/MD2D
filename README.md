@@ -13,9 +13,9 @@ Multidimensional Data to 2D. Here you can find some MATLAB scripts for t_SNE dia
 
 4. From the MATLAB console run:
 
-'''
+````MATLAB
     face2tsne
-'''
+````
 
 **Popular about t-SNE**
 
