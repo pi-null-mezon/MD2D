@@ -32,8 +32,12 @@ for i = 1:size(coords,1)
 end
 for i = 1:size(Labels,1)
  axes('pos',[coords(i,1), coords(i,2), 0.015, .02]);
- I = imresize(imread(Labels{i}),[100 NaN]);
- imshow(I);
+ try
+    I = imresize(imread(Labels{i}),[100 NaN]);
+    imshow(I);
+ catch
+    warning(['Can not load ' Labels{i}]); 
+ end
 end
 toc
 disp('Saving plot on hard drive as png file...'); 

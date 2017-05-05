@@ -56,10 +56,16 @@ using namespace std;
 #include <QString>
 #include <QFile>
 
+
+// Uncomment to use VGG Face Descriptor as actual Face Descriptor
+// #define USE_VGG
+
+
 std::vector<String> readClassNames(const char *filename = "C:/Programming/3rdParties/Caffe/models/vgg_face_caffe/names.txt");
 
 cv::Mat describe(const String &filename, dnn::Net &net);
 cv::Mat preprocessimageforVGGCNN(const Mat &_inmat);
+cv::Mat preprocessimageforLCNN(const Mat &_inmat);
 cv::Mat cropresize(const cv::Mat &input, const cv::Size size);
 void    recognize(const String &filename, dnn::Net &net);
 
@@ -67,8 +73,13 @@ int main(int argc, char **argv)
 {
     setlocale(LC_CTYPE, "rus");
 
+#ifdef USE_VGG
     String modelTxt = "C:/Programming/3rdParties/Caffe/models/vgg_face_caffe/VGG_FACE_deploy.prototxt";
     String modelBin = "C:/Programming/3rdParties/Caffe/models/vgg_face_caffe/VGG_FACE.caffemodel";
+#else
+    String modelTxt = "C:/Programming/3rdParties/Caffe/models/DeepFaceRepresenattion_B/LightenedCNN.prototxt";
+    String modelBin = "C:/Programming/3rdParties/Caffe/models/DeepFaceRepresenattion_B/LightenedCNN.caffemodel";
+#endif
     //! [Initialize network]
     dnn::Net net = dnn::readNetFromCaffe(modelTxt,modelBin);
     if(net.empty()) {
@@ -124,8 +135,11 @@ void recognize(const String &filename, dnn::Net &net)
         std::cerr << "Can't read image from the file: " << filename << std::endl;
         exit(-1);
     }
-
+    #ifdef USE_VGG
     img = preprocessimageforVGGCNN(img);
+    #else
+    img = preprocessimageforLCNN(img);
+    #endif
     cv::imshow("Probe", img);
     cv::waitKey(1);
 
@@ -165,7 +179,11 @@ cv::Mat describe(const String &filename, dnn::Net &net)
         exit(-1);
     }
 
+    #ifdef USE_VGG
     img = preprocessimageforVGGCNN(img);
+    #else
+    img = preprocessimageforLCNN(img);
+    #endif
     cv::imshow("Probe", img);
     cv::waitKey(1);
 
@@ -181,7 +199,12 @@ cv::Mat describe(const String &filename, dnn::Net &net)
     net.forward();
     //! [Make forward pass]
 
+#ifdef USE_VGG
     dnn::Blob featuresBlob = net.getBlob("fc8");
+#else
+    dnn::Blob featuresBlob = net.getBlob("fc2");
+#endif
+
     return featuresBlob.matRefConst().reshape(1, 1);
 }
 
@@ -225,6 +248,26 @@ cv::Mat preprocessimageforVGGCNN(const Mat &_inmat)
 
     if(_outmat.cols != 224 || _outmat.rows != 224) {
         _outmat = cropresize(_outmat, cv::Size(224,224));
+    }
+    return _outmat;
+}
+
+
+cv::Mat preprocessimageforLCNN(const Mat &_inmat)
+{
+    // VGG Face LCNN accepts only 128 x 128 gray-images
+    cv::Mat _outmat;
+
+    if(_inmat.channels() == 4) {
+        cv::cvtColor(_inmat,_outmat,CV_BGRA2GRAY);
+    } else if(_inmat.channels() == 3) {
+        cv::cvtColor(_inmat,_outmat,CV_BGR2GRAY);
+    } else {
+        _outmat = _inmat;
+    }
+
+    if(_outmat.cols != 128 || _outmat.rows != 128) {
+        _outmat = cropresize(_outmat, cv::Size(128,128));
     }
     return _outmat;
 }
