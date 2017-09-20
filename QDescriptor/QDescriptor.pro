@@ -3,12 +3,13 @@ QT -= gui
 
 CONFIG += c++11
 
-TARGET = Sources
+TARGET = QDescriptor
 CONFIG += console
 CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += opencvdnn.cpp
+SOURCES += main.cpp
 
 include(opencv.pri)
+include(dlib.pri)

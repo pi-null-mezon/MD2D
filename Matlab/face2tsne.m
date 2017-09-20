@@ -9,7 +9,7 @@ SL = textscan(f,'%[^\n]','delimiter','\n');
 Labels = SL{1};
 
 % Now we can make t-SNE
-outDims = 2; pcaDims = 2622; perplexity = 30; theta = 0; alg = 'svd';
+outDims = 2; pcaDims = 128; perplexity = 30; theta = 0; alg = 'svd';
 disp('Data prepared. t-SNE started...');
 map = fast_tsne(Features, outDims, pcaDims, perplexity, theta, alg, 5000);
 disp('Prepare plot data...');
